@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Баронство — пилот</title>
+  <style>
+    :root { color-scheme: light; color: #303c34; background: #ece7d7; font-family: Georgia, serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    canvas { display: block; width: 100vw; height: 100vh; outline: none; }
+    #loading { position: fixed; inset: 0; display: grid; place-items: center; padding: 32px; background: #ece7d7; }
+    #loading[hidden], [hidden] { display: none !important; }
+    main { width: min(100%, 560px); }
+    h1 { font-size: 48px; font-weight: normal; margin: 0 0 24px; }
+    p { font-size: 20px; line-height: 1.5; margin: 0 0 24px; }
+    button { font: inherit; font-size: 20px; color: #303c34; background: #f7f3e7; border: 1px solid #8a6837; border-radius: 4px; padding: 14px 24px; cursor: pointer; }
+    button:hover { background: #dfd4b9; }
+    button:focus-visible { outline: 3px solid #735326; outline-offset: 4px; }
+    button:disabled { cursor: wait; color: #5c6858; }
+    progress { display: block; width: 100%; height: 16px; margin: 0 0 24px; accent-color: #735326; }
+    #notice { white-space: pre-line; }
+    #storage-notice { position: fixed; bottom: 0; left: 0; right: 0; margin: 0; padding: 12px 24px; background: #f7f3e7; font-size: 16px; border-top: 1px solid #8a6837; }
+    ::selection { color: #303c34; background: #dfd4b9; }
+  </style>
+  <link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+
+</head>
+<body>
+  <canvas id="canvas" tabindex="0" aria-label="Баронство — игровое поле">Для игры нужен браузер с поддержкой WebGL 2.</canvas>
+  <div id="loading">
+    <main>
+      <h1>Баронство</h1>
+      <p id="notice" role="status">История одного владения. Пилот на шесть игровых лет.</p>
+      <progress id="progress" aria-label="Загрузка игры" hidden></progress>
+      <button id="start" type="button">Начать игру</button>
+      <button id="retry" type="button" hidden>Повторить загрузку</button>
+      <noscript><p>Включите JavaScript в браузере, чтобы запустить игру.</p></noscript>
+    </main>
+  </div>
+  <p id="storage-notice" role="alert" hidden></p>
+  <input id="save-file" type="file" accept=".json,application/json" hidden>
+  <script>
+    'use strict';
+    // A synchronous storage commit gives Save an honest success/failure result.
+    // JSON is the same versioned format as the native game. No data is uploaded.
+    window.BaronyWeb = (() => {
+      const picker = document.getElementById('save-file');
+      const prefix = 'barony/save/';
+      let callback = null;
+      let storageFailure = '';
+      function storageError() {
+        try {
+          const key = prefix + '__probe';
+          localStorage.setItem(key, '1');
+          localStorage.removeItem(key);
+          storageFailure = '';
+        } catch (_) {
+          storageFailure = 'Сохранение в этом браузере недоступно. Откройте «Загрузить» и скачайте текущую партию в файл.';
+        }
+        return storageFailure;
+      }
+      picker.addEventListener('cancel', () => { if (callback) callback('', 'cancel'); });
+      picker.addEventListener('change', async () => {
+        const file = picker.files[0];
+        if (!file || !callback) return;
+        if (file.size > 4 * 1024 * 1024) {
+          callback('', 'Файл слишком большой. Выберите сохранение Баронства размером до 4 МБ.');
+          return;
+        }
+        try { callback(await file.text(), ''); }
+        catch (_) { callback('', 'Не удалось прочитать файл. Выберите другое сохранение.'); }
+      });
+      return {
+        storageError,
+        attachFileCallback(fn) { callback = fn; },
+        chooseSaveFile() { picker.value = ''; picker.click(); },
+        storeSave(path, text) {
+          try { localStorage.setItem(prefix + path, text); storageFailure = ''; }
+          catch (_) { storageFailure = 'Не удалось записать сохранение: хранилище браузера недоступно или заполнено. Скачайте текущую партию через «Загрузить».'; }
+          return storageFailure;
+        },
+        readSave(path) {
+          try { return localStorage.getItem(prefix + path) || ''; }
+          catch (_) { storageError(); return ''; }
+        }
+      };
+    })();
+  </script>
+  <script src="index.js"></script>
+  <script>
+    'use strict';
+    const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":18885724,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+    const engine = typeof Engine === 'function' ? new Engine(config) : null;
+    const notice = document.getElementById('notice');
+    const start = document.getElementById('start');
+    const retry = document.getElementById('retry');
+    const progress = document.getElementById('progress');
+    function failure(error) {
+      console.error(error);
+      document.getElementById('loading').hidden = false;
+      notice.textContent = 'Не удалось запустить игру. Повторите загрузку. Если ошибка повторяется, проверьте доступность страницы и попробуйте актуальный Chrome, Edge или Firefox с включённым аппаратным ускорением.';
+      start.hidden = true;
+      progress.hidden = true;
+      retry.hidden = false;
+      retry.focus();
+    }
+    retry.addEventListener('click', () => location.reload());
+    if (!engine) failure(new Error('Engine loader is unavailable.'));
+    start.addEventListener('click', async () => {
+      const missing = Engine.getMissingFeatures({ threads: false });
+      if (missing.length) { failure(new Error('Missing browser features: ' + missing.join(', '))); return; }
+      start.disabled = true;
+      notice.textContent = 'Загружаем владение… Первый запуск может занять некоторое время.';
+      progress.hidden = false;
+      try {
+        await engine.startGame({ onProgress(current, total) {
+          if (total > 0) { progress.max = total; progress.value = current; }
+          else { progress.removeAttribute('value'); }
+        }});
+        document.getElementById('loading').hidden = true;
+        document.getElementById('canvas').focus();
+        const warning = window.BaronyWeb.storageError();
+        if (warning) {
+          const banner = document.getElementById('storage-notice');
+          banner.textContent = warning;
+          banner.hidden = false;
+        }
+      } catch (error) { failure(error); }
+    });
+  </script>
+</body>
+</html>
+

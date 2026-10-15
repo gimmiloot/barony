@@ -1,0 +1,77 @@
+{
+  "source_built_utc": "2026-10-15T21:58:57.7997044Z",
+  "files": [
+    {
+      "sha256": "5FAB05614AEB81C6F14264F70E37AE35B0AF272C08020C41BF109D9B12FC4BEE",
+      "name": "index.html",
+      "bytes": 7251
+    },
+    {
+      "sha256": "33C94CB3175F3333B82E2A3BE5E8E86F77986F0AA2042B1631F6367A4E5BB6BA",
+      "name": "index.js",
+      "bytes": 279815
+    },
+    {
+      "sha256": "FC74679E3B97F76878947FCD4FBE1268CBFA6188182A2E33BBC3F5DC9BFA57D0",
+      "name": "index.wasm",
+      "bytes": 39514754
+    },
+    {
+      "sha256": "8B9329E3CBBF34528C4DB50A9CA1950CE21DF796D039085BEF449840265B88DE",
+      "name": "index.pck",
+      "bytes": 18885724
+    },
+    {
+      "sha256": "3CB4495C0B98DFBE4B663CBF2B6836473572339BEB66D902367893162A70BE0E",
+      "name": "index.png",
+      "bytes": 21443
+    },
+    {
+      "sha256": "25895353542FE8DCDFA3736EAF15F44DC02BA60E2DC73A9B863D69AA5BAE89A3",
+      "name": "index.icon.png",
+      "bytes": 5373
+    },
+    {
+      "sha256": "2C620336A4002A1876393A448FF9EFC810322568AB9E8F6BDF20CB419DA781F1",
+      "name": "index.apple-touch-icon.png",
+      "bytes": 30181
+    },
+    {
+      "sha256": "5B476A9C9CE642C0EE4256436D1BC31D9C38F868ACA0F9A8E2A57C18D2DEC2A3",
+      "name": "index.audio.worklet.js",
+      "bytes": 7298
+    },
+    {
+      "sha256": "BE33985BC7160D6BF9646F259CD86B259CD67B02CCB297EE5C44F8AC84327BC8",
+      "name": "index.audio.position.worklet.js",
+      "bytes": 2973
+    },
+    {
+      "sha256": "23EE19D98D7E5675C31E45C68C2C27D0D005D32E0504C0BF6567F8B723562874",
+      "name": "ATTRIBUTION.md",
+      "bytes": 6561
+    },
+    {
+      "sha256": "43209EEE620EA92309FCE4EBA7025D01963708238A8B848A323B15A8C67F3B5D",
+      "name": "LICENSE.txt",
+      "bytes": 1065
+    },
+    {
+      "sha256": "0DAB92D0544F7B233403F14B84A663BDBFA746982EDA629E7F4F9FFE1B036FEB",
+      "name": "OFL.txt",
+      "bytes": 4377
+    },
+    {
+      "sha256": "0CC111553346A76D1A8B39159DB2143884C726613BB15EDB0A61B5000BE1D863",
+      "name": "README.md",
+      "bytes": 2311
+    },
+    {
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "name": ".nojekyll",
+      "bytes": 0
+    }
+  ],
+  "target": "pages",
+  "engine": "4.7.2.stable"
+}
