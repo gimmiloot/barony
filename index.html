@@ -11,24 +11,40 @@
     body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
     canvas { display: block; width: 100%; height: 100%; outline: none; touch-action: none; }
     @supports (height: 100dvh) { body { height: 100dvh; } }
-    #loading { position: fixed; inset: 0; display: grid; place-items: center; padding: 32px; background: #ece7d7; }
+    #loading { position: fixed; inset: 0; display: grid; place-items: center; overflow-y: auto; padding: max(32px, env(safe-area-inset-top)) max(32px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(32px, env(safe-area-inset-left)); background: #ece7d7; }
     #loading[hidden], [hidden] { display: none !important; }
-    main { width: min(100%, 560px); }
+    main { width: min(100%, 560px); margin: auto; }
     h1 { font-size: 48px; font-weight: normal; margin: 0 0 24px; }
+    h2 { font-size: 28px; font-weight: normal; margin: 0 0 12px; }
     p { font-size: 20px; line-height: 1.5; margin: 0 0 24px; }
     button { font: inherit; font-size: 20px; color: #303c34; background: #f7f3e7; border: 1px solid #8a6837; border-radius: 4px; padding: 14px 24px; cursor: pointer; }
     button:hover { background: #dfd4b9; }
     button:focus-visible { outline: 3px solid #735326; outline-offset: 4px; }
     button:disabled { cursor: wait; color: #5c6858; }
     progress { display: block; width: 100%; height: 16px; margin: 0 0 24px; accent-color: #735326; }
+    progress::-webkit-progress-bar { background: #d8d0b8; }
+    progress::-webkit-progress-value { background: #735326; }
+    progress::-moz-progress-bar { background: #735326; }
+    #steps { display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 0; margin: 0 0 20px; list-style: none; font-size: 17px; color: #58644f; }
+    #steps [aria-current="step"] { color: #303c34; font-weight: bold; }
+    #download-count { font-size: 18px; font-variant-numeric: tabular-nums; margin-bottom: 10px; }
+    #notice { font-size: 18px; }
+    #waiting-note { color: #58644f; font-size: 16px; margin-bottom: 0; }
     #notice { white-space: pre-line; }
     #storage-notice { position: fixed; bottom: 0; left: 0; right: 0; margin: 0; padding: 12px 24px; background: #f7f3e7; font-size: 16px; border-top: 1px solid #8a6837; }
     ::selection { color: #303c34; background: #dfd4b9; }
     @media (max-width: 600px) {
-      #loading { padding: 24px; }
+      #loading { padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
       h1 { font-size: 36px; }
       p { font-size: 18px; }
       button { min-height: 48px; }
+    }
+    @media (max-height: 480px) {
+      #loading { padding-top: 20px; padding-bottom: 20px; }
+      h1 { font-size: 36px; margin-bottom: 16px; }
+      h2 { font-size: 24px; }
+      #steps { margin-bottom: 12px; }
+      p, progress { margin-bottom: 16px; }
     }
   </style>
   <link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
@@ -37,13 +53,20 @@
 </head>
 <body>
   <canvas id="canvas" tabindex="0" aria-label="Баронство — игровое поле">Для игры нужен браузер с поддержкой WebGL 2.</canvas>
-  <div id="loading">
+  <div id="loading" data-phase="waiting">
     <main>
       <h1>Баронство</h1>
-      <p id="notice" role="status">История одного владения. Пилот на шесть игровых лет.</p>
-      <progress id="progress" aria-label="Загрузка игры" hidden></progress>
+      <ol id="steps" aria-label="Этапы запуска" hidden>
+        <li id="download-step">Скачивание</li>
+        <li id="prepare-step">Подготовка</li>
+      </ol>
+      <h2 id="stage" role="status" aria-live="polite" hidden></h2>
+      <p id="notice">История одного владения. Пилот на шесть игровых лет.</p>
+      <p id="download-count" hidden></p>
+      <progress id="progress" aria-label="Скачивание файлов игры" hidden></progress>
       <button id="start" type="button">Начать игру</button>
       <button id="retry" type="button" hidden>Повторить загрузку</button>
+      <p id="waiting-note" hidden></p>
       <noscript><p>Включите JavaScript в браузере, чтобы запустить игру.</p></noscript>
     </main>
   </div>
@@ -96,45 +119,141 @@
       };
     })();
   </script>
-  <script src="index.js"></script>
   <script>
     'use strict';
-    const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":21777700,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
-    const engine = typeof Engine === 'function' ? new Engine(config) : null;
+    const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":21778544,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+    let engine;
+    const loading = document.getElementById('loading');
     const notice = document.getElementById('notice');
     const start = document.getElementById('start');
     const retry = document.getElementById('retry');
     const progress = document.getElementById('progress');
-    function failure(error) {
-      console.error(error);
-      document.getElementById('loading').hidden = false;
-      notice.textContent = 'Не удалось запустить игру. Повторите загрузку. Если ошибка повторяется, проверьте доступность страницы и попробуйте актуальный Chrome, Edge или Firefox с включённым аппаратным ускорением.';
-      start.hidden = true;
-      progress.hidden = true;
-      retry.hidden = false;
-      retry.focus();
+    const steps = document.getElementById('steps');
+    const stage = document.getElementById('stage');
+    const downloadStep = document.getElementById('download-step');
+    const prepareStep = document.getElementById('prepare-step');
+    const count = document.getElementById('download-count');
+    const waitingNote = document.getElementById('waiting-note');
+    const metrics = { started: null, downloadFinished: null, engineStarted: null, menuReady: null, bytes: 0, total: 0 };
+    let waitingTimer;
+    const expectedBytes = (config.fileSizes[config.executable + '.wasm'] || 0) + (config.fileSizes[config.mainPack || config.executable + '.pck'] || 0);
+    function record() {
+      // Local diagnostics only: this page never sends timings or saves anywhere.
+      document.body.dataset.bootMetrics = JSON.stringify(metrics);
     }
-    retry.addEventListener('click', () => location.reload());
-    if (!engine) failure(new Error('Engine loader is unavailable.'));
-    start.addEventListener('click', async () => {
-      const missing = Engine.getMissingFeatures({ threads: false });
-      if (missing.length) { failure(new Error('Missing browser features: ' + missing.join(', '))); return; }
-      start.disabled = true;
-      notice.textContent = 'Загружаем владение… Первый запуск может занять некоторое время.';
-      progress.hidden = false;
-      try {
-        await engine.startGame({ onProgress(current, total) {
-          if (total > 0) { progress.max = total; progress.value = current; }
-          else { progress.removeAttribute('value'); }
-        }});
-        document.getElementById('loading').hidden = true;
+    function preparing() {
+      if (loading.dataset.phase !== 'downloading') return;
+      metrics.downloadFinished = performance.now();
+      loading.dataset.phase = 'preparing';
+      downloadStep.textContent = 'Скачивание завершено';
+      downloadStep.removeAttribute('aria-current');
+      prepareStep.setAttribute('aria-current', 'step');
+      stage.textContent = 'Подготавливаем игру';
+      notice.textContent = 'Запускаем движок и открываем главное меню.';
+      count.hidden = true;
+      progress.hidden = true;
+      waitingNote.hidden = false;
+      waitingNote.textContent = 'На первом запуске подготовка может занять больше времени.';
+      record();
+    }
+    function onProgress(current, total) {
+      if (loading.dataset.phase !== 'downloading') return;
+      metrics.bytes = current;
+      metrics.total = total;
+      if (count.hidden) notice.textContent = 'Скачиваем движок и данные владения.';
+      count.hidden = false;
+      const mib = value => (value / (1024 * 1024)).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+      if (total > 0) {
+        progress.max = total;
+        progress.value = current;
+        count.textContent = `${mib(current)} из ${mib(total)} МиБ · ${Math.min(100, Math.floor(current * 100 / total))}%`;
+        if (expectedBytes > 0 && current >= expectedBytes && total >= expectedBytes) preparing();
+      } else {
+        progress.removeAttribute('value');
+        count.textContent = `Получено ${mib(current)} МиБ`;
+      }
+      record();
+    }
+    window.BaronyBoot = {
+      ready() {
+        if (!['downloading', 'preparing'].includes(loading.dataset.phase)) return;
+        preparing();
+        metrics.menuReady = performance.now();
+        metrics.resources = performance.getEntriesByType('resource').filter(item => /\/index\.(js|wasm|pck)(\?|$)/.test(item.name)).map(item => ({file:new URL(item.name).pathname.split('/').pop(),start:item.startTime,end:item.responseEnd,transfer:item.transferSize,encoded:item.encodedBodySize,decoded:item.decodedBodySize}));
+        metrics.pageResponse = performance.getEntriesByType('navigation')[0]?.responseEnd;
+        clearTimeout(waitingTimer);
+        loading.dataset.phase = 'ready';
+        loading.hidden = true;
         document.getElementById('canvas').focus();
+        record();
         const warning = window.BaronyWeb.storageError();
         if (warning) {
           const banner = document.getElementById('storage-notice');
           banner.textContent = warning;
           banner.hidden = false;
         }
+      }
+    };
+    function failure(error) {
+      console.error(error);
+      clearTimeout(waitingTimer);
+      const downloading = loading.dataset.phase === 'downloading';
+      loading.hidden = false;
+      loading.dataset.phase = 'error';
+      stage.hidden = false;
+      stage.textContent = downloading ? 'Не удалось скачать игру' : 'Не удалось подготовить игру';
+      notice.textContent = downloading ? 'Проверьте подключение к интернету и повторите загрузку.' : 'Повторите запуск. Если ошибка повторяется, попробуйте актуальный Chrome, Edge или Firefox с включённым аппаратным ускорением.';
+      start.hidden = true;
+      progress.hidden = true;
+      count.hidden = true;
+      steps.hidden = true;
+      waitingNote.hidden = true;
+      retry.hidden = false;
+      retry.focus();
+      metrics.failed = performance.now();
+      record();
+    }
+    retry.addEventListener('click', () => location.reload());
+    const nextPaint = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    function loadEngineScript() {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'index.js';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Engine loader is unavailable.'));
+        document.body.append(script);
+      });
+    }
+    start.addEventListener('click', async () => {
+      if (loading.dataset.phase !== 'waiting') return;
+      metrics.started = performance.now();
+      loading.dataset.phase = 'downloading';
+      start.disabled = true;
+      start.hidden = true;
+      stage.hidden = false;
+      stage.textContent = 'Скачиваем игру';
+      steps.hidden = false;
+      downloadStep.setAttribute('aria-current', 'step');
+      notice.textContent = 'Загружаем файлы запуска. Затем — движок и данные владения.';
+      progress.hidden = false;
+      progress.removeAttribute('value');
+      record();
+      waitingTimer = setTimeout(() => {
+        waitingNote.hidden = false;
+        waitingNote.textContent = loading.dataset.phase === 'downloading' ? 'Скачивание ещё идёт. При медленном соединении оно может занять несколько минут.' : 'Подготовка ещё идёт. Оставьте эту вкладку открытой.';
+      }, 15000);
+      try {
+        await nextPaint();
+        await loadEngineScript();
+        const missing = Engine.getMissingFeatures({ threads: false });
+        if (missing.length) { preparing(); throw new Error('Missing browser features: ' + missing.join(', ')); }
+        engine = new Engine(config);
+        await engine.startGame({ onProgress, onExit(code) {
+          if (loading.dataset.phase !== 'ready') failure(new Error('Engine exited before the menu: ' + code));
+        }});
+        metrics.engineStarted = performance.now();
+        preparing();
+        record();
       } catch (error) { failure(error); }
     });
   </script>
