@@ -86,6 +86,8 @@ License: [GNU General Public License version 2](https://opensource.org/licenses/
 
 ## Project-generated prologue illustration
 
+`assets/illustrations/main_menu_estate_v1.png` is original project artwork generated with the built-in ImageGen tool on 16 October 2026 and approved by the user for the main menu. It depicts the estate's castle, village, fields and woodland. The approved prologue artwork supplied the technique and palette reference. The complete prompt and original preview are preserved at `Art/previews/main-menu-estate-v1-prompt.txt` and `main-menu-estate-v1.png` in the project root. This records project-art provenance, not a third-party asset-pack license.
+
 `assets/illustrations/prologue_return_v2.png` is original project artwork generated and edited with the built-in ImageGen tool on 14 October 2026. The first trial is retained as `prologue_return_v1.png`. The second version changes the three riders into equipped campaign veterans, following the user's feedback; the castle and overall composition are retained. This entry records provenance, not a third-party asset-pack license. Generation and editing prompts are preserved in `Art/illustration_sources/prologue-return-v1.txt` and `prologue-return-v2.txt` at the project root.
 
 `assets/illustrations/prologue_study_v1.png` was generated with the built-in ImageGen tool on 14 October 2026, using the approved `prologue_return_v2.png` solely as a reference for technique and palette. It depicts the castle's working study with a hearth, worn furniture and estate accounts, and is used in prologue scenes 3 and 4. The complete prompt is preserved at `Art/illustration_sources/prologue-study-v1.txt` in the project root. This records project-art provenance, not a third-party asset-pack license.
