@@ -2,13 +2,15 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Баронство — пилот</title>
   <style>
     :root { color-scheme: light; color: #303c34; background: #ece7d7; font-family: Georgia, serif; }
     * { box-sizing: border-box; }
-    body { margin: 0; }
-    canvas { display: block; width: 100vw; height: 100vh; outline: none; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    canvas { display: block; width: 100%; height: 100%; outline: none; touch-action: none; }
+    @supports (height: 100dvh) { body { height: 100dvh; } }
     #loading { position: fixed; inset: 0; display: grid; place-items: center; padding: 32px; background: #ece7d7; }
     #loading[hidden], [hidden] { display: none !important; }
     main { width: min(100%, 560px); }
@@ -22,6 +24,12 @@
     #notice { white-space: pre-line; }
     #storage-notice { position: fixed; bottom: 0; left: 0; right: 0; margin: 0; padding: 12px 24px; background: #f7f3e7; font-size: 16px; border-top: 1px solid #8a6837; }
     ::selection { color: #303c34; background: #dfd4b9; }
+    @media (max-width: 600px) {
+      #loading { padding: 24px; }
+      h1 { font-size: 36px; }
+      p { font-size: 18px; }
+      button { min-height: 48px; }
+    }
   </style>
   <link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
@@ -91,7 +99,7 @@
   <script src="index.js"></script>
   <script>
     'use strict';
-    const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":18885724,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+    const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":19284612,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
     const engine = typeof Engine === 'function' ? new Engine(config) : null;
     const notice = document.getElementById('notice');
     const start = document.getElementById('start');

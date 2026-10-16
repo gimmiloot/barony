@@ -82,7 +82,7 @@ License: [GNU General Public License version 2](https://opensource.org/licenses/
 
 ## Browser typography
 
-`assets/fonts/NotoSerif-Regular.ttf`, `NotoSans-Regular.ttf` and `NotoSansSymbols2-Regular.ttf` supply Cyrillic text, serif headings and navigation symbols where Web builds cannot access system fonts. Source: [Noto fonts](https://github.com/notofonts/noto-fonts/tree/main/hinted/ttf). Copyright 2018 The Noto Project Authors. Distributed unmodified under SIL Open Font License 1.1; the complete license is included in `assets/fonts/OFL.txt` and browser distributions.
+`assets/fonts/NotoSerif-Regular.ttf`, `NotoSans-Regular.ttf`, `NotoSansMath-Regular.ttf` and `NotoSansSymbols2-Regular.ttf` supply Cyrillic text, serif headings, mathematical signs and navigation symbols where Web builds cannot access system fonts. Symbols 2 alone does not cover arrows or the mathematical minus; the Math family completes the fallback chain. Source: [Noto fonts](https://github.com/notofonts/noto-fonts/tree/main/hinted/ttf). Copyright 2018 The Noto Project Authors. Distributed unmodified under SIL Open Font License 1.1; the complete license is included in `assets/fonts/OFL.txt` and browser distributions. Runtime font metrics are aligned for UI line spacing; the font files are unmodified.
 
 ## Project-generated prologue illustration
 
