@@ -1,10 +1,12 @@
 {
+  "source_built_utc": "2026-10-18T08:27:12Z",
+  "engine": "4.7.2.stable",
   "target": "pages",
   "files": [
     {
-      "bytes": 14298,
+      "bytes": 14296,
       "name": "index.html",
-      "sha256": "A2B93D56329F311301B6A8F33EA8100F7B11055F753984B9393BBE621944B715"
+      "sha256": "D2A663EA1851E955AFED9147B424AD648D74F183798637D5759EB50457CF4357"
     },
     {
       "bytes": 279815,
@@ -17,9 +19,9 @@
       "sha256": "FC74679E3B97F76878947FCD4FBE1268CBFA6188182A2E33BBC3F5DC9BFA57D0"
     },
     {
-      "bytes": 21872720,
+      "bytes": 21888032,
       "name": "index.pck",
-      "sha256": "433E0DBCCC180AF26C1A3D797C975EB839A45C0BF46D36987165FE64FAF2298A"
+      "sha256": "33B040B3047BEEE82FD56999CAC2D02CA7D3C4E57B0BF91FED092792FC107439"
     },
     {
       "bytes": 21443,
@@ -62,16 +64,14 @@
       "sha256": "0DAB92D0544F7B233403F14B84A663BDBFA746982EDA629E7F4F9FFE1B036FEB"
     },
     {
-      "bytes": 2887,
+      "bytes": 3351,
       "name": "README.md",
-      "sha256": "AD83B4C9E03E65D4ED6FB387093215E7DC76BDEDDC0605CA9715C1AB7DF193D0"
+      "sha256": "6F9C137C5B9CCC53B2E6D19D97A4A7D1AECAD1B815E9C5BA58A44BF411049B28"
     },
     {
       "bytes": 0,
       "name": ".nojekyll",
       "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
     }
-  ],
-  "source_built_utc": "2026-10-18T07:50:33Z",
-  "engine": "4.7.2.stable"
+  ]
 }
